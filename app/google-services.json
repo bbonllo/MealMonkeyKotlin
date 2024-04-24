@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "627557379721",
+    "project_id": "mealmonkeykotlin",
+    "storage_bucket": "mealmonkeykotlin.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:627557379721:android:b585e58a0f6ac5ffc42058",
+        "android_client_info": {
+          "package_name": "com.bbonllo.mealmonkey"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCGACqgdajkO7n-FdQQkypdJY7GjdMKPbs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    alias(libs.plugins.googleAndroidLibrariesMapsplatformSecretsGradlePlugin)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -48,6 +50,16 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.play.services.maps)
+
+    // Material
+    implementation("com.google.android.material:material:1.11.0")
+
+    // Firebase
+    implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
+    implementation("com.google.firebase:firebase-analytics")
+
+    // JUnit test
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

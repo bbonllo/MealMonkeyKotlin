@@ -1,4 +1,4 @@
-package com.bbonllo.mealmonkey.ui.dashboard
+package com.bbonllo.mealmonkey.ui.social
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,11 +7,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.bbonllo.mealmonkey.databinding.FragmentDashboardBinding
+import com.bbonllo.mealmonkey.databinding.FragmentSocialBinding
 
-class DashboardFragment : Fragment() {
+class SocialFragment : Fragment() {
 
-    private var _binding: FragmentDashboardBinding? = null
+    private var _binding: FragmentSocialBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -23,12 +23,12 @@ class DashboardFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val dashboardViewModel =
-            ViewModelProvider(this).get(DashboardViewModel::class.java)
+            ViewModelProvider(this).get(SocialViewModel::class.java)
 
-        _binding = FragmentDashboardBinding.inflate(inflater, container, false)
+        _binding = FragmentSocialBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textDashboard
+        val textView: TextView = binding.textSocial
         dashboardViewModel.text.observe(viewLifecycleOwner) {
             textView.text = it
         }

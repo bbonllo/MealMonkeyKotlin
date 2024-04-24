@@ -1,4 +1,4 @@
-package com.bbonllo.mealmonkey.ui.home
+package com.bbonllo.mealmonkey.ui.feed
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,11 +7,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.bbonllo.mealmonkey.databinding.FragmentHomeBinding
+import com.bbonllo.mealmonkey.databinding.FragmentFeedBinding
 
-class HomeFragment : Fragment() {
+class FeedFragment : Fragment() {
 
-    private var _binding: FragmentHomeBinding? = null
+    private var _binding: FragmentFeedBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -22,14 +22,14 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val homeViewModel =
-            ViewModelProvider(this).get(HomeViewModel::class.java)
+        val feedViewModel =
+            ViewModelProvider(this).get(FeedViewModel::class.java)
 
-        _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        _binding = FragmentFeedBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textHome
-        homeViewModel.text.observe(viewLifecycleOwner) {
+        val textView: TextView = binding.textFeed
+        feedViewModel.text.observe(viewLifecycleOwner) {
             textView.text = it
         }
         return root
