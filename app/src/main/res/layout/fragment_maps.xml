@@ -15,7 +15,8 @@
         android:layout_gravity="top|start"
         map:mapId="@string/map_id"
         map:uiMapToolbar="false"
-        map:uiTiltGestures="false" />
+        map:uiTiltGestures="false"
+        tools:ignore="FragmentTagUsage" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_my_location"
