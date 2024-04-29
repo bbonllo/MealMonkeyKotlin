@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinAndroid)
     alias(libs.plugins.googleAndroidLibrariesMapsplatformSecretsGradlePlugin)
     id("com.google.gms.google-services")
+
 }
 
 android {
@@ -51,6 +52,7 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.play.services.maps)
+    implementation(libs.play.services.location)
 
     // Material
     implementation("com.google.android.material:material:1.11.0")

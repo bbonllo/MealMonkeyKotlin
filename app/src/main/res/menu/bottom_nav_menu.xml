@@ -3,21 +3,25 @@
 
     <item
         android:id="@+id/navigation_maps"
+        android:enabled="true"
         android:icon="@drawable/ic_globe_24dp"
-        android:title="@string/title_maps"/>
+        android:title="@string/title_maps" />
 
     <item
         android:id="@+id/navigation_feed"
+        android:enabled="true"
         android:icon="@drawable/ic_menu_24dp"
         android:title="@string/title_feed" />
 
     <item
         android:id="@+id/navigation_social"
+        android:enabled="true"
         android:icon="@drawable/ic_group_24dp"
         android:title="@string/title_social" />
 
     <item
         android:id="@+id/navigation_account"
+        android:enabled="true"
         android:icon="@drawable/ic_person_24dp"
         android:title="@string/title_account" />
 

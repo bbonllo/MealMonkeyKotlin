@@ -1,6 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.MealMonkey" parent="Theme.Material3.Dark">
+    <style name="Theme.MealMonkeyKotlin" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="android:fontFamily">@font/dm_sans_bold</item>
         <item name="colorPrimary">@color/md_theme_dark_primary</item>
         <item name="colorOnPrimary">@color/md_theme_dark_onPrimary</item>
         <item name="colorPrimaryContainer">@color/md_theme_dark_primaryContainer</item>
