@@ -8,6 +8,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.PaintFlagsDrawFilter
 import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
@@ -24,6 +25,8 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.bbonllo.mealmonkey.R
+import android.graphics.Path
+import android.graphics.RectF
 import com.bbonllo.mealmonkey.databinding.FragmentMapsBinding
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -37,6 +40,8 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.toColorInt
 
 @Suppress("DEPRECATION")
 class MapsFragment : Fragment() {
@@ -241,49 +246,101 @@ class MapsFragment : Fragment() {
                 .position(latlngBILBAO)
                 .title("Bilbao")
                 .snippet("Population: 4,137,400")
-                .icon(context?.let { bitmapDescriptor(it, "ramen") })
+                .icon(context?.let { bitmapDescriptor(it, "ramen", listOf("#fa626c", "#7d8282", "#3ec37d")) })
         )
         markerPerth?.tag = 0
     }
 
-    private fun bitmapDescriptor(context: Context, iconName: String): BitmapDescriptor {
-        val mapIconName = "ic_$iconName" + "_maps"
-
-        val resourceId =
-            context.resources.getIdentifier(mapIconName, "drawable", context.packageName)
+    private fun bitmapDescriptor(context: Context, iconName: String, colors: List<String>): BitmapDescriptor {
+        val mapIconName = "ic_${iconName}_maps"
+        val resourceId = context.resources.getIdentifier(mapIconName, "drawable", context.packageName)
 
         return if (resourceId != 0) {
             val vectorDrawable = ContextCompat.getDrawable(context, resourceId)
 
-            val bitmap = Bitmap.createBitmap(
-                vectorDrawable!!.intrinsicWidth + 20,
-                vectorDrawable.intrinsicHeight + 20,
-                Bitmap.Config.ARGB_8888
-            )
+            val size = 65 // Tamaño del círculo
+            val pointerHeight = 15 // Altura punta
+            val pointerWidth = 10f // Ancho punta
+            val borderWidth = 7f // Ancho del borde
 
+            val totalHeight = size + pointerHeight + borderWidth.toInt() * 2
+            val bitmap = createBitmap(size + borderWidth.toInt() * 2, totalHeight)
             val canvas = Canvas(bitmap)
-            val circlePaint = Paint().apply {
-                color = Color.BLUE
+            canvas.drawFilter =
+                PaintFlagsDrawFilter(0, Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
+
+            val centerX = (bitmap.width / 2).toFloat()
+            val centerY = (size / 2 + borderWidth).toFloat()
+            val radius = (size / 2).toFloat()
+
+            // Paint para el borde blanco
+            val borderPaint = Paint().apply {
+                color = "#FFFEFE".toColorInt()
+                isAntiAlias = true
+                setShadowLayer(7f, 0f, 0f, "#33000000".toColorInt())
+            }
+
+            // Paint para el fondo rojo
+            val fillPaint = Paint().apply {
+                color = "#D62828".toColorInt() // rojo similar al de la imagen
                 isAntiAlias = true
             }
-            canvas.drawCircle(
-                (bitmap.width / 2).toFloat(),
-                (bitmap.height / 2).toFloat(),
-                (bitmap.width / 2).toFloat(),
-                circlePaint
+
+            // ---------- FONDO ----------
+            // Borde del círculo
+            canvas.drawCircle(centerX, centerY, radius + borderWidth, borderPaint)
+
+            // ---------- PUNTA ----------
+            val pointerPath = Path().apply {
+                moveTo(centerX - pointerWidth, centerY + radius - 5)
+                lineTo(centerX + pointerWidth, centerY + radius - 5)
+                close()
+            }
+
+            // Borde de la punta (más grueso)
+            val pointerBorderPath = Path().apply {
+                moveTo(centerX - pointerWidth - borderWidth + 2.5f - 1.8f, centerY + radius - 5)
+                lineTo(centerX + pointerWidth + borderWidth + 2.5f - 1f, centerY + radius - 5)
+                lineTo(centerX, centerY + radius + pointerHeight + borderWidth)
+                close()
+            }
+
+            canvas.drawPath(pointerBorderPath, borderPaint)
+            canvas.drawPath(pointerPath, borderPaint)
+            // ---------- CÍRCULO MULTICOLOR ----------
+            val oval = RectF(
+                centerX - radius,
+                centerY - radius,
+                centerX + radius,
+                centerY + radius
             )
 
+            val anglePerSlice = 360f / colors.size
+            var startAngle = -90f
+
+            colors.forEach { hexColor ->
+                val paint = Paint().apply {
+                    color = Color.parseColor(hexColor)
+                    isAntiAlias = true
+                    style = Paint.Style.FILL
+                }
+                canvas.drawArc(oval, startAngle, anglePerSlice, true, paint)
+                startAngle += anglePerSlice
+            }
+
+            // ---------- ÍCONO ----------
+            vectorDrawable!!.setTint("#FFFEFE".toColorInt()) // blanco como en la imagen
             vectorDrawable.setBounds(
-                10,
-                10,
-                bitmap.width - 10,
-                bitmap.height - 10
+                (centerX - radius / 1.4f).toInt(),
+                (centerY - radius / 1.4f).toInt(),
+                (centerX + radius / 1.4f).toInt(),
+                (centerY + radius / 1.4f).toInt()
             )
-
             vectorDrawable.draw(canvas)
-            BitmapDescriptorFactory.fromBitmap(bitmap)
+
+            return BitmapDescriptorFactory.fromBitmap(bitmap)
         } else {
-            BitmapDescriptorFactory.defaultMarker()
+            return BitmapDescriptorFactory.defaultMarker()
         }
     }
 }
