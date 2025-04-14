@@ -1,10 +1,13 @@
 package com.bbonllo.mealmonkey.ui.maps
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
@@ -14,9 +17,12 @@ import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.bbonllo.mealmonkey.R
 import com.bbonllo.mealmonkey.databinding.FragmentMapsBinding
 import com.google.android.gms.location.LocationServices
@@ -24,12 +30,13 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-
 
 @Suppress("DEPRECATION")
 class MapsFragment : Fragment() {
@@ -37,15 +44,66 @@ class MapsFragment : Fragment() {
     private var _binding: FragmentMapsBinding? = null
     private val permissionLocation = Manifest.permission.ACCESS_FINE_LOCATION
     private val permissionLocationReqCode = 100
-    private var firstTimePermission: Boolean = true
 
     private var mMap: GoogleMap? = null
     private var mapInitialized = false
     private var mapPosition: LatLng? = null
+    private var firstTimePermission: Boolean = true
 
     private lateinit var fabMyLocation: FloatingActionButton
+    private lateinit var btnAddLocation: Button
 
     private val latlngBILBAO = LatLng(43.262985, -2.935013)
+
+    /***********************************************************************
+     *
+     * Load the map view
+     *
+     ***********************************************************************/
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentMapsBinding.inflate(inflater, container, false)
+        return _binding!!.root
+    }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val mapFragment =
+            childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
+        fabMyLocation = view.findViewById(R.id.fab_my_location)
+        btnAddLocation = view.findViewById(R.id.fab_add_location)
+        mapFragment?.getMapAsync(callback)
+        fabMyLocation.setOnClickListener {
+            getMyLocation()
+        }
+        btnAddLocation.setOnClickListener {
+            findNavController().navigate(R.id.action_navigation_maps_to_navigation_add_marker)
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        mMap?.let { googleMap ->
+            outState.putParcelable("map_position", googleMap.cameraPosition.target)
+        }
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        savedInstanceState?.let {
+            mapPosition = it.getParcelable("map_position")
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
 
     @RequiresApi(Build.VERSION_CODES.R)
     private val callback = OnMapReadyCallback { googleMap ->
@@ -64,54 +122,11 @@ class MapsFragment : Fragment() {
         addMapMarkers()
     }
 
-    private fun addMapMarkers() {
-        val melbourne = LatLng(-37.813, 144.962)
-        val sydney = LatLng(-33.852, 151.211)
-
-        mMap!!.addMarker(
-            MarkerOptions()
-                .position(melbourne)
-                .title("Melbourne")
-                .snippet("Population: 4,137,400")
-            //.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_arrow_down_24dp))
-        )
-
-        mMap!!.addMarker(
-            MarkerOptions()
-                .position(sydney)
-                .title("Marker in Sydney")
-        )
-
-        // Algo para controlar que marcador se pulsa
-        val markerPerth: Marker? = mMap!!.addMarker(
-            MarkerOptions()
-                .position(latlngBILBAO)
-                .title("Bilbao")
-        )
-        markerPerth?.tag = 0
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentMapsBinding.inflate(inflater, container, false)
-        return _binding!!.root
-    }
-
-    @RequiresApi(Build.VERSION_CODES.R)
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        val mapFragment =
-            childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
-        fabMyLocation = view.findViewById(R.id.fab_my_location)
-        mapFragment?.getMapAsync(callback)
-        fabMyLocation.setOnClickListener {
-            getMyLocation()
-        }
-    }
-
+    /***********************************************************************
+     *
+     * Permissions
+     *
+     ***********************************************************************/
     private fun getMyLocation() {
         if (this.activity?.let { ActivityCompat.checkSelfPermission(it, permissionLocation) }
             == PackageManager.PERMISSION_GRANTED) {
@@ -125,7 +140,7 @@ class MapsFragment : Fragment() {
                     mMap?.uiSettings?.isMyLocationButtonEnabled = false
                     val latLng = LatLng(location.latitude, location.longitude)
                     val cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 17f)
-                    mMap?.animateCamera(cameraUpdate)
+                    mMap?.animateCamera(cameraUpdate, 1200, null)
                 }
             }
             fabMyLocation.setImageResource(R.drawable.ic_location_24dp)
@@ -187,38 +202,88 @@ class MapsFragment : Fragment() {
     }
 
 
-    @SuppressLint("UseCompatLoadingForDrawables")
+    /***********************************************************************
+     *
+     * Markers
+     *
+     ***********************************************************************/
     private fun myLocationMarker() {
         if (this.activity?.let { ActivityCompat.checkSelfPermission(it, permissionLocation) }
             == PackageManager.PERMISSION_GRANTED) {
             mMap?.isMyLocationEnabled = true
             mMap?.uiSettings?.isMyLocationButtonEnabled = false
+            fabMyLocation.setImageResource(R.drawable.ic_location_24dp)
         } else {
-            fabMyLocation.setImageDrawable(resources.getDrawable(R.drawable.ic_location_disabled_24dp,
-                context?.theme
-            ));
-            //fabMyLocation.setImageResource(R.drawable.ic_location_disabled_24dp)
-            //fabMyLocation.setBackgroundColor(R.color)
+            fabMyLocation.setImageResource(R.drawable.ic_location_disabled_24dp)
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        mMap?.let { googleMap ->
-            outState.putParcelable("map_position", googleMap.cameraPosition.target)
+    private fun addMapMarkers() {
+        val melbourne = LatLng(-37.813, 144.962)
+        val sydney = LatLng(-33.852, 151.211)
+
+        mMap!!.addMarker(
+            MarkerOptions()
+                .position(melbourne)
+                .title("Melbourne")
+                .snippet("Population: 4,137,400")
+        )
+
+        mMap!!.addMarker(
+            MarkerOptions()
+                .position(sydney)
+                .title("Marker in Sydney")
+        )
+
+        // Algo para controlar que marcador se pulsa
+        val markerPerth: Marker? = mMap!!.addMarker(
+            MarkerOptions()
+                .position(latlngBILBAO)
+                .title("Bilbao")
+                .snippet("Population: 4,137,400")
+                .icon(context?.let { bitmapDescriptor(it, "ramen") })
+        )
+        markerPerth?.tag = 0
+    }
+
+    private fun bitmapDescriptor(context: Context, iconName: String): BitmapDescriptor {
+        val mapIconName = "ic_$iconName" + "_maps"
+
+        val resourceId =
+            context.resources.getIdentifier(mapIconName, "drawable", context.packageName)
+
+        return if (resourceId != 0) {
+            val vectorDrawable = ContextCompat.getDrawable(context, resourceId)
+
+            val bitmap = Bitmap.createBitmap(
+                vectorDrawable!!.intrinsicWidth + 20,
+                vectorDrawable.intrinsicHeight + 20,
+                Bitmap.Config.ARGB_8888
+            )
+
+            val canvas = Canvas(bitmap)
+            val circlePaint = Paint().apply {
+                color = Color.BLUE
+                isAntiAlias = true
+            }
+            canvas.drawCircle(
+                (bitmap.width / 2).toFloat(),
+                (bitmap.height / 2).toFloat(),
+                (bitmap.width / 2).toFloat(),
+                circlePaint
+            )
+
+            vectorDrawable.setBounds(
+                10,
+                10,
+                bitmap.width - 10,
+                bitmap.height - 10
+            )
+
+            vectorDrawable.draw(canvas)
+            BitmapDescriptorFactory.fromBitmap(bitmap)
+        } else {
+            BitmapDescriptorFactory.defaultMarker()
         }
     }
-
-    override fun onViewStateRestored(savedInstanceState: Bundle?) {
-        super.onViewStateRestored(savedInstanceState)
-        savedInstanceState?.let {
-            mapPosition = it.getParcelable("map_position")
-        }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
 }

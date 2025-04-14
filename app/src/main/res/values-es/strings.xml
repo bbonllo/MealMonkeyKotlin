@@ -13,4 +13,5 @@
     <string name="unaviable_location_feature">La función de localización no está disponible porque requiere un permiso que usted ha denegado. Permítalo desde la configuración para continuar.</string>
     <string name="title_settings">Ajustes</string>
     <string name="title_locate">Localizar</string>
+    <string name="title_add_location">Añadir sitio</string>
 </resources>
