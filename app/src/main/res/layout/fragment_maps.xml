@@ -27,5 +27,19 @@
         android:contentDescription="@string/title_locate"
         app:fabCustomSize="48dp"
         app:maxImageSize="24dp" />
+    
+    <Button
+        android:id="@+id/fab_add_location"
+        style="@style/Widget.Material3.Button.Icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_margin="14dp"
+        android:height="60dp"
+        android:contentDescription="@string/title_add_location"
+        android:text="@string/title_add_location"
+        android:textSize="16sp"
+        app:icon="@drawable/ic_add_24dp"
+        app:iconSize="22dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
