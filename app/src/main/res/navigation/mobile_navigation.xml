@@ -10,9 +10,6 @@
         android:name="com.bbonllo.mealmonkey.ui.maps.MapsFragment"
         android:label="@string/title_maps"
         tools:layout="@layout/fragment_maps" >
-        <action
-            android:id="@+id/action_navigation_maps_to_navigation_add_marker"
-            app:destination="@id/navigation_add_marker" />
     </fragment>
 
     <fragment
@@ -32,13 +29,4 @@
         android:name="com.bbonllo.mealmonkey.ui.account.AccountFragment"
         android:label="@string/title_account"
         tools:layout="@layout/fragment_account" />
-    <fragment
-        android:id="@+id/navigation_add_marker"
-        android:name="com.bbonllo.mealmonkey.ui.addmarker.AddMarkerFragment"
-        android:label="fragment_add_marker"
-        tools:layout="@layout/fragment_add_marker" >
-        <action
-            android:id="@+id/action_navigation_add_marker_to_navigation_maps"
-            app:destination="@id/navigation_maps" />
-    </fragment>
 </navigation>

@@ -14,4 +14,5 @@
     <string name="title_settings">Ajustes</string>
     <string name="title_locate">Localizar</string>
     <string name="title_add_location">Añadir sitio</string>
+    <string name="title_add">Añadir</string>
 </resources>

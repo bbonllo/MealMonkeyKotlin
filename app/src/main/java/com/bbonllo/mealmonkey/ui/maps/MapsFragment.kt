@@ -4,9 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PaintFlagsDrawFilter
 import android.location.Location
@@ -23,7 +21,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
+import com.bbonllo.mealmonkey.ui.addmarker.AddMarkerActivity
 import com.bbonllo.mealmonkey.R
 import android.graphics.Path
 import android.graphics.RectF
@@ -86,7 +84,9 @@ class MapsFragment : Fragment() {
             getMyLocation()
         }
         btnAddLocation.setOnClickListener {
-            findNavController().navigate(R.id.action_navigation_maps_to_navigation_add_marker)
+            val intent = Intent(requireContext(), AddMarkerActivity::class.java)
+            startActivity(intent)
+            // findNavController().navigate(R.id.action_navigation_maps_to_navigation_add_marker)
         }
     }
 
@@ -320,7 +320,7 @@ class MapsFragment : Fragment() {
 
             colors.forEach { hexColor ->
                 val paint = Paint().apply {
-                    color = Color.parseColor(hexColor)
+                    color = hexColor.toColorInt()
                     isAntiAlias = true
                     style = Paint.Style.FILL
                 }
