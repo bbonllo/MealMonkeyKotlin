@@ -3,13 +3,12 @@ package com.bbonllo.mealmonkey.ui.addmarker
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.widget.NestedScrollView
 import com.bbonllo.mealmonkey.R
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
@@ -32,7 +31,7 @@ class AddMarkerActivity : AppCompatActivity() {
         val txtPhone = findViewById<EditText>(R.id.txt_phone)
         val txtWebsite = findViewById<EditText>(R.id.txt_website)
         val txtArticle = findViewById<EditText>(R.id.txt_article)
-        val chipScrollView = findViewById<NestedScrollView>(R.id.chip_scroll_view)
+        val chipScrollView = findViewById<ScrollView>(R.id.chip_scroll_view)
         val chipGroup = findViewById<ChipGroup>(R.id.chip_group_tags)
 
         val typedArray = theme.obtainStyledAttributes(intArrayOf(com.google.android.material.R.attr.colorSecondary))
@@ -61,11 +60,9 @@ class AddMarkerActivity : AppCompatActivity() {
                 val currentBg = chip.chipBackgroundColor?.defaultColor ?: bgColor
                 val currentStroke = chip.chipStrokeColor?.defaultColor ?: strokeColor
 
-                // Swap colors
                 chip.chipBackgroundColor = ColorStateList.valueOf(currentStroke)
                 chip.chipStrokeColor = ColorStateList.valueOf(currentBg)
 
-                // Optional: update text color if background changes significantly
                 val newLuminosity = calculateLuminosity(currentStroke)
                 chip.setTextColor(if (newLuminosity > 128) Color.BLACK else Color.WHITE)
             }

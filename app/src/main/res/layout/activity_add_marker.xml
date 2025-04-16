@@ -95,16 +95,18 @@
                 <androidx.core.widget.NestedScrollView
                     android:id="@+id/chip_scroll_view"
                     android:layout_width="match_parent"
-                    android:layout_height="125dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:elevation="4dp">
+                    android:overScrollMode="ifContentScrolls"
+                    android:scrollbars="vertical">
 
                     <com.google.android.material.chip.ChipGroup
                         android:id="@+id/chip_group_tags"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingVertical="2dp"
-                        android:maxHeight="120dp"
+                        android:paddingVertical="4dp"
+                        app:chipSpacingHorizontal="8dp"
+                        app:chipSpacingVertical="8dp"
                         app:singleLine="false"
                         app:singleSelection="false" />
                 </androidx.core.widget.NestedScrollView>
@@ -133,7 +135,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:hint="Escribe un comentario si quieres"
+                    android:hint="Comentario"
                     app:startIconDrawable="@drawable/ic_notes_24dp">
 
                     <com.google.android.material.textfield.TextInputEditText
