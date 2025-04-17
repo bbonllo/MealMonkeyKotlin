@@ -15,4 +15,17 @@
     <string name="title_locate">Localizar</string>
     <string name="title_add_location">Añadir sitio</string>
     <string name="title_add">Añadir</string>
+    <string name="title_name">Nombre</string>
+    <string name="title_change_icon">Cambiar icono</string>
+    <string name="title_location">Dirección</string>
+    <string name="title_tags">Etiquetas</string>
+    <string name="title_create_tag">Crear etiqueta</string>
+    <string name="title_comment">Comentario</string>
+    <string name="title_phone">Teléfono</string>
+    <string name="title_website">Sitio web</string>
+    <string name="title_web_article">Artículo web</string>
+    <string name="title_save">Guardar</string>
+    <string name="title_to_try">Por probar</string>
+    <string name="title_tried">Probado</string>
+    <string name="title_place">Lugar</string>
 </resources>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Campo de texto para el nombre -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="8dp"
+        android:hint="@string/title_name">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTagName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:inputType="textCapWords|textNoSuggestions"
+            android:imeOptions="actionDone"
+            android:maxLength="30"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Selector de color simplificado -->
+    <com.skydoves.colorpickerview.ColorPickerView
+        android:id="@+id/colorPickerView"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_marginTop="16dp"
+        tools:selector="@drawable/colorpickerview_wheel"
+        tools:palette="@drawable/colorpickerview_palette"/>
+
+    <!-- Previsualización del color seleccionado -->
+    <View
+        android:id="@+id/colorPreview"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="8dp"
+        android:background="@android:color/white"/>
+
+    <com.google.android.material.slider.Slider
+        android:id="@+id/brightnessSlider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:valueFrom="0"
+        android:valueTo="100"
+        android:value="100"/>
+</LinearLayout>
