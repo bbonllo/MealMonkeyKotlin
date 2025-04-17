@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.googleAndroidLibrariesMapsplatformSecretsGradlePlugin)
     id("com.google.gms.google-services")
     id("kotlin-kapt")
+    id("app.cash.sqldelight") version "2.0.2" // Versión explícita
 }
 
 android {
@@ -43,7 +44,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -62,18 +62,16 @@ dependencies {
     // Color Picker
     implementation("com.github.skydoves:colorpickerview:2.3.0")
 
+    // SQLDelight
+    implementation("app.cash.sqldelight:android-driver:2.0.2")
+    implementation("app.cash.sqldelight:coroutines-extensions:2.0.2")
+
     // Gson
     implementation("com.google.code.gson:gson:2.10.1")
 
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
     implementation("com.google.firebase:firebase-analytics")
-
-    // Room components
-    implementation("androidx.room:room-runtime:2.2.5")
-    implementation(libs.androidx.room.ktx)
-    kapt(libs.androidx.room.compiler)
-    androidTestImplementation("androidx.room:room-testing:2.2.5")
 
     // OpenStreetMap components
     implementation("org.osmdroid:osmdroid-android:6.1.17")
@@ -85,12 +83,23 @@ dependencies {
 
     // Kotlin components
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.72")
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.5")
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.5")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
 
-    // JUnit test
+    // Testing
     testImplementation(libs.junit)
-    implementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+}
+
+sqldelight {
+    databases {
+        create("MealMonkeyDatabase") {
+            packageName.set("com.bbonllo.mealmonkey.data.database")
+            // Opcional: Especifica dónde colocar los archivos generados
+            srcDirs.setFrom("src/main/sqldelight")
+            // Esquema de migración (útil para futuras actualizaciones)
+            schemaOutputDirectory.set(file("src/main/sqldelight/databases"))
+        }
+    }
 }

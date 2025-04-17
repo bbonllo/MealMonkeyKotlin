@@ -10,6 +10,9 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
+    plugins {
+        id("app.cash.sqldelight") version "2.0.2"
+    }
 }
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)

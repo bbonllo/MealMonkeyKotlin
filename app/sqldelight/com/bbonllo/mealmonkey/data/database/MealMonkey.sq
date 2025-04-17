@@ -1,0 +1,82 @@
+CREATE TABLE marker (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    address TEXT NOT NULL,
+    description TEXT,
+    phone_number TEXT,
+    web_page TEXT,
+    article TEXT,
+    icon TEXT NOT NULL,
+    is_visited INTEGER NOT NULL DEFAULT 0,
+    rating REAL NOT NULL DEFAULT 0,
+    latitude REAL NOT NULL,
+    longitude REAL NOT NULL
+);
+
+CREATE TABLE tag (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    color TEXT NOT NULL
+);
+
+CREATE TABLE marker_tag_join (
+    marker_id INTEGER NOT NULL,
+    tag_id INTEGER NOT NULL,
+    FOREIGN KEY(marker_id) REFERENCES marker(id) ON DELETE CASCADE,
+    FOREIGN KEY(tag_id) REFERENCES tag(id) ON DELETE CASCADE,
+    PRIMARY KEY(marker_id, tag_id)
+);
+
+-- Queries para Marker
+selectAllMarkers:
+SELECT * FROM marker;
+
+selectMarkerById:
+SELECT * FROM marker WHERE id = ?;
+
+insertMarker:
+INSERT INTO marker(
+    name, address, description, phone_number, web_page,
+    article, icon, is_visited, rating, latitude, longitude
+)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+deleteMarker:
+DELETE FROM marker WHERE id = ?;
+
+updateMarker:
+UPDATE marker SET
+    name = ?,
+    address = ?,
+    description = ?,
+    phone_number = ?,
+    web_page = ?,
+    article = ?,
+    icon = ?,
+    is_visited = ?,
+    rating = ?,
+    latitude = ?,
+    longitude = ?
+WHERE id = ?;
+
+-- Queries para Tag
+selectAllTags:
+SELECT * FROM tag;
+
+selectTagsForMarker:
+SELECT tag.* FROM tag
+INNER JOIN marker_tag_join ON tag.id = marker_tag_join.tag_id
+WHERE marker_tag_join.marker_id = ?;
+
+insertTag:
+INSERT INTO tag(name, color) VALUES (?, ?);
+
+deleteTag:
+DELETE FROM tag WHERE id = ?;
+
+-- Queries para la relación Marker-Tag
+insertMarkerTagJoin:
+INSERT INTO marker_tag_join(marker_id, tag_id) VALUES (?, ?);
+
+deleteMarkerTagJoins:
+DELETE FROM marker_tag_join WHERE marker_id = ?;

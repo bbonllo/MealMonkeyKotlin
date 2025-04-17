@@ -1,12 +1,8 @@
 package com.bbonllo.mealmonkey.data.marker
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import com.bbonllo.mealmonkey.data.tag.Tag
 
-@Entity(tableName = "marker_data")
 data class Marker(
-    @PrimaryKey(autoGenerate = true)
     val id: Int,
     val name: String,
     val address: String,
