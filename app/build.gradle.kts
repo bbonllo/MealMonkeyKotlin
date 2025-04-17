@@ -59,6 +59,9 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
 
+    // Color Picker
+    implementation("com.github.skydoves:colorpickerview:2.3.0")
+
     // Gson
     implementation("com.google.code.gson:gson:2.10.1")
 

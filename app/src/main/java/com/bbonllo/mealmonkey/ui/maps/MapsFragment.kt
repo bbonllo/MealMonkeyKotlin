@@ -21,11 +21,9 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.bbonllo.mealmonkey.ui.addmarker.AddMarkerActivity
 import com.bbonllo.mealmonkey.R
-import android.graphics.Path
-import android.graphics.RectF
 import com.bbonllo.mealmonkey.databinding.FragmentMapsBinding
+import com.bbonllo.mealmonkey.ui.addmarker.AddMarkerActivity
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -38,6 +36,8 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import android.graphics.Path
+import android.graphics.RectF
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.toColorInt
 
@@ -58,11 +58,24 @@ class MapsFragment : Fragment() {
 
     private val latlngBILBAO = LatLng(43.262985, -2.935013)
 
-    /***********************************************************************
-     *
-     * Load the map view
-     *
-     ***********************************************************************/
+    // Callback para cuando el mapa está listo
+    private val callback = OnMapReadyCallback { googleMap ->
+        mMap = googleMap
+        mMap?.uiSettings?.isRotateGesturesEnabled = false // Desactiva rotación
+
+        if (!mapInitialized) {
+            mMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(latlngBILBAO, 4.8F))
+        } else {
+            mapPosition?.let {
+                mMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(it, 4.8F))
+            }
+        }
+
+        mapInitialized = true
+        myLocationMarker()
+        addMapMarkers()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -75,18 +88,19 @@ class MapsFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val mapFragment =
-            childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
+        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         fabMyLocation = view.findViewById(R.id.fab_my_location)
         btnAddLocation = view.findViewById(R.id.fab_add_location)
+
         mapFragment?.getMapAsync(callback)
+
         fabMyLocation.setOnClickListener {
             getMyLocation()
         }
+
         btnAddLocation.setOnClickListener {
             val intent = Intent(requireContext(), AddMarkerActivity::class.java)
             startActivity(intent)
-            // findNavController().navigate(R.id.action_navigation_maps_to_navigation_add_marker)
         }
     }
 
@@ -109,35 +123,12 @@ class MapsFragment : Fragment() {
         _binding = null
     }
 
-
     @RequiresApi(Build.VERSION_CODES.R)
-    private val callback = OnMapReadyCallback { googleMap ->
-        mMap = googleMap
-
-        if (!mapInitialized)
-            mMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(latlngBILBAO, 4.8F))
-        else
-            mapPosition?.let {
-                mMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(it, 4.8F))
-            }
-
-        mapInitialized = true
-
-        myLocationMarker()
-        addMapMarkers()
-    }
-
-    /***********************************************************************
-     *
-     * Permissions
-     *
-     ***********************************************************************/
     private fun getMyLocation() {
         if (this.activity?.let { ActivityCompat.checkSelfPermission(it, permissionLocation) }
             == PackageManager.PERMISSION_GRANTED) {
             isGPSEnabled()
-            val fusedLocationProviderClient =
-                context?.let { LocationServices.getFusedLocationProviderClient(it) }
+            val fusedLocationProviderClient = context?.let { LocationServices.getFusedLocationProviderClient(it) }
             fusedLocationProviderClient?.lastLocation?.addOnCompleteListener { task ->
                 val location: Location? = task.result
                 if (location != null) {
@@ -155,63 +146,72 @@ class MapsFragment : Fragment() {
                     permissionLocation
                 )
             } == true) {
-            val builder = MaterialAlertDialogBuilder(this.requireContext())
-            builder.setTitle(R.string.title_location_permission)
-                .setMessage(R.string.is_required_permission_location)
-                .setCancelable(false)
-                .setPositiveButton(R.string.title_ok) { dialog, _ ->
-                    ActivityCompat.requestPermissions(
-                        this.requireActivity(), arrayOf(permissionLocation),
-                        permissionLocationReqCode
-                    )
-                    dialog.dismiss()
-                }
-                .setNegativeButton(R.string.title_cancel) { dialog, _ ->
-                    dialog.dismiss()
-                }
-                .show()
+            showPermissionDialog()
         } else {
-            if (firstTimePermission) {
-                firstTimePermission = false
-                this.activity?.let {
-                    ActivityCompat.requestPermissions(
-                        it, arrayOf(permissionLocation),
-                        permissionLocationReqCode
-                    )
-                }
-            } else {
-                firstTimePermission = true
-                val builder = MaterialAlertDialogBuilder(this.requireContext())
-                builder.setTitle(R.string.title_location_permission)
-                    .setMessage(R.string.unaviable_location_feature)
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.title_settings) { _, _ ->
-                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                        val uri = Uri.fromParts("package", activity?.packageName, null)
-                        intent.data = uri
-                        startActivity(intent)
-                    }
-                    .setNegativeButton(R.string.title_cancel) { dialog, _ ->
-                        dialog.dismiss()
-                    }
-                    .show()
-            }
+            handlePermissionRequest()
         }
     }
 
     private fun isGPSEnabled(): Boolean {
         val locationManager = context?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
-            LocationManager.NETWORK_PROVIDER
-        )
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 
+    private fun showPermissionDialog() {
+        MaterialAlertDialogBuilder(this.requireContext())
+            .setTitle(R.string.title_location_permission)
+            .setMessage(R.string.is_required_permission_location)
+            .setCancelable(false)
+            .setPositiveButton(R.string.title_ok) { dialog, _ ->
+                requestLocationPermission()
+                dialog.dismiss()
+            }
+            .setNegativeButton(R.string.title_cancel) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
 
-    /***********************************************************************
-     *
-     * Markers
-     *
-     ***********************************************************************/
+    private fun handlePermissionRequest() {
+        if (firstTimePermission) {
+            firstTimePermission = false
+            requestLocationPermission()
+        } else {
+            showSettingsDialog()
+        }
+    }
+
+    private fun requestLocationPermission() {
+        this.activity?.let {
+            ActivityCompat.requestPermissions(
+                it, arrayOf(permissionLocation),
+                permissionLocationReqCode
+            )
+        }
+    }
+
+    private fun showSettingsDialog() {
+        MaterialAlertDialogBuilder(this.requireContext())
+            .setTitle(R.string.title_location_permission)
+            .setMessage(R.string.unaviable_location_feature)
+            .setCancelable(false)
+            .setPositiveButton(R.string.title_settings) { _, _ ->
+                openAppSettings()
+            }
+            .setNegativeButton(R.string.title_cancel) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    private fun openAppSettings() {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+        val uri = Uri.fromParts("package", activity?.packageName, null)
+        intent.data = uri
+        startActivity(intent)
+    }
+
     private fun myLocationMarker() {
         if (this.activity?.let { ActivityCompat.checkSelfPermission(it, permissionLocation) }
             == PackageManager.PERMISSION_GRANTED) {
@@ -224,23 +224,24 @@ class MapsFragment : Fragment() {
     }
 
     private fun addMapMarkers() {
-        val melbourne = LatLng(-37.813, 144.962)
-        val sydney = LatLng(-33.852, 151.211)
+        val madrid = LatLng(40.416775, -3.703790)
+        val barcelona = LatLng(41.390205, 2.154007)
 
         mMap!!.addMarker(
             MarkerOptions()
-                .position(melbourne)
-                .title("Melbourne")
+                .position(madrid)
+                .title("Madrid")
                 .snippet("Population: 4,137,400")
+                .icon(context?.let { bitmapDescriptor(it, "fastfood", listOf("#FF7F50", "#7d8282", "#3ec37d")) })
         )
 
         mMap!!.addMarker(
             MarkerOptions()
-                .position(sydney)
-                .title("Marker in Sydney")
+                .position(barcelona)
+                .title("Barcelona")
+                .icon(context?.let { bitmapDescriptor(it, "ramen", listOf("#00FF00", "#7d8282", "#FF7F50", "#7CFC00")) })
         )
 
-        // Algo para controlar que marcador se pulsa
         val markerPerth: Marker? = mMap!!.addMarker(
             MarkerOptions()
                 .position(latlngBILBAO)
@@ -258,10 +259,10 @@ class MapsFragment : Fragment() {
         return if (resourceId != 0) {
             val vectorDrawable = ContextCompat.getDrawable(context, resourceId)
 
-            val size = 65 // Tamaño del círculo
-            val pointerHeight = 15 // Altura punta
-            val pointerWidth = 10f // Ancho punta
-            val borderWidth = 7f // Ancho del borde
+            val size = 65
+            val pointerHeight = 15
+            val pointerWidth = 10f
+            val borderWidth = 7f
 
             val totalHeight = size + pointerHeight + borderWidth.toInt() * 2
             val bitmap = createBitmap(size + borderWidth.toInt() * 2, totalHeight)
@@ -273,31 +274,20 @@ class MapsFragment : Fragment() {
             val centerY = (size / 2 + borderWidth).toFloat()
             val radius = (size / 2).toFloat()
 
-            // Paint para el borde blanco
             val borderPaint = Paint().apply {
                 color = "#FFFEFE".toColorInt()
                 isAntiAlias = true
                 setShadowLayer(7f, 0f, 0f, "#33000000".toColorInt())
             }
 
-            // Paint para el fondo rojo
-            val fillPaint = Paint().apply {
-                color = "#D62828".toColorInt() // rojo similar al de la imagen
-                isAntiAlias = true
-            }
-
-            // ---------- FONDO ----------
-            // Borde del círculo
             canvas.drawCircle(centerX, centerY, radius + borderWidth, borderPaint)
 
-            // ---------- PUNTA ----------
             val pointerPath = Path().apply {
                 moveTo(centerX - pointerWidth, centerY + radius - 5)
                 lineTo(centerX + pointerWidth, centerY + radius - 5)
                 close()
             }
 
-            // Borde de la punta (más grueso)
             val pointerBorderPath = Path().apply {
                 moveTo(centerX - pointerWidth - borderWidth + 2.5f - 1.8f, centerY + radius - 5)
                 lineTo(centerX + pointerWidth + borderWidth + 2.5f - 1f, centerY + radius - 5)
@@ -307,7 +297,7 @@ class MapsFragment : Fragment() {
 
             canvas.drawPath(pointerBorderPath, borderPaint)
             canvas.drawPath(pointerPath, borderPaint)
-            // ---------- CÍRCULO MULTICOLOR ----------
+
             val oval = RectF(
                 centerX - radius,
                 centerY - radius,
@@ -316,7 +306,7 @@ class MapsFragment : Fragment() {
             )
 
             val anglePerSlice = 360f / colors.size
-            var startAngle = -90f
+            var startAngle = 0f
 
             colors.forEach { hexColor ->
                 val paint = Paint().apply {
@@ -328,8 +318,7 @@ class MapsFragment : Fragment() {
                 startAngle += anglePerSlice
             }
 
-            // ---------- ÍCONO ----------
-            vectorDrawable!!.setTint("#FFFEFE".toColorInt()) // blanco como en la imagen
+            vectorDrawable!!.setTint("#FFFEFE".toColorInt())
             vectorDrawable.setBounds(
                 (centerX - radius / 1.4f).toInt(),
                 (centerY - radius / 1.4f).toInt(),
@@ -338,9 +327,9 @@ class MapsFragment : Fragment() {
             )
             vectorDrawable.draw(canvas)
 
-            return BitmapDescriptorFactory.fromBitmap(bitmap)
+            BitmapDescriptorFactory.fromBitmap(bitmap)
         } else {
-            return BitmapDescriptorFactory.defaultMarker()
+            BitmapDescriptorFactory.defaultMarker()
         }
     }
 }
