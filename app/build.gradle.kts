@@ -1,10 +1,10 @@
 plugins {
-    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.application)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     alias(libs.plugins.googleAndroidLibrariesMapsplatformSecretsGradlePlugin)
     id("com.google.gms.google-services")
     id("kotlin-kapt")
-    id("app.cash.sqldelight") version "2.0.2" // Versión explícita
+    // id("app.cash.sqldelight")
 }
 
 android {
@@ -92,14 +92,10 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 }
 
-sqldelight {
-    databases {
-        create("MealMonkeyDatabase") {
-            packageName.set("com.bbonllo.mealmonkey.data.database")
-            // Opcional: Especifica dónde colocar los archivos generados
-            srcDirs.setFrom("src/main/sqldelight")
-            // Esquema de migración (útil para futuras actualizaciones)
-            schemaOutputDirectory.set(file("src/main/sqldelight/databases"))
-        }
-    }
-}
+//sqldelight {
+//    databases {
+//        create("MealMonkeyDatabase") {
+//            packageName.set("com.bbonllo.mealmonkey.database")
+//        }
+//    }
+//}

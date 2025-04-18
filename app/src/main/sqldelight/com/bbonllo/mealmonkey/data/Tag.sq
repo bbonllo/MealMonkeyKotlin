@@ -1,0 +1,27 @@
+CREATE TABLE tag (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    color TEXT NOT NULL
+);
+
+-- Queries
+selectAllTags:
+SELECT * FROM tag;
+
+selectTagsForMarker:
+SELECT tag.* FROM tag
+INNER JOIN marker_tag_join ON tag.id = marker_tag_join.tag_id
+WHERE marker_tag_join.marker_id = ?;
+
+insertTag:
+INSERT INTO tag(name, color) VALUES (?, ?);
+
+deleteTag:
+DELETE FROM tag WHERE id = ?;
+
+-- Queries para la relación Marker-Tag
+insertMarkerTagJoin:
+INSERT INTO marker_tag_join(marker_id, tag_id) VALUES (?, ?);
+
+deleteMarkerTagJoins:
+DELETE FROM marker_tag_join WHERE marker_id = ?;

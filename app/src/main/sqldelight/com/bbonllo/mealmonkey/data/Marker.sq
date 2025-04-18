@@ -13,12 +13,6 @@ CREATE TABLE marker (
     longitude REAL NOT NULL
 );
 
-CREATE TABLE tag (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    color TEXT NOT NULL
-);
-
 CREATE TABLE marker_tag_join (
     marker_id INTEGER NOT NULL,
     tag_id INTEGER NOT NULL,
@@ -27,7 +21,23 @@ CREATE TABLE marker_tag_join (
     PRIMARY KEY(marker_id, tag_id)
 );
 
--- Queries para Marker
+INSERT INTO marker(name, address, description, phone_number, web_page,
+                   article, icon, is_visited, rating, latitude, longitude)
+VALUES ("Fuente de Cibeles", "Plaza Cibeles, S/N, Centro, 28014 Madrid",
+    "Fuente cibeles yo que se", "",
+    "http://www.esmadrid.com/informacion-turistica/fuente-de-la-cibeles",
+    "http://www.esmadrid.com/informacion-turistica/fuente-de-la-cibeles", "ramen",
+    1, 4.2, 40.419346009996005, -3.693090116340292),
+    ("Basílica de la Sagrada Família", "Carrer de Mallorca, 401, L'Eixample, 08013 Barcelona",
+    "Sagrada Familia yo que se", "932080414", "https://sagradafamilia.org/",
+    "https://sagradafamilia.org/", "fastfood",
+    0, 3.8, 41.40368041054238, 2.1743528555042486),
+    ("Museo Guggenheim Bilbao", "Abandoibarra Etorb., 2, Abando, 48009 Bilbao, Bizkaia",
+    "Guggenheim con Puppy", "944359080", "https://www.guggenheim-bilbao.eus/",
+    "https://www.guggenheim-bilbao.eus/", "ramen",
+    1, 5, 43.2687179503685, -2.9340206476443527);
+
+-- Queries
 selectAllMarkers:
 SELECT * FROM marker;
 
@@ -58,25 +68,3 @@ UPDATE marker SET
     latitude = ?,
     longitude = ?
 WHERE id = ?;
-
--- Queries para Tag
-selectAllTags:
-SELECT * FROM tag;
-
-selectTagsForMarker:
-SELECT tag.* FROM tag
-INNER JOIN marker_tag_join ON tag.id = marker_tag_join.tag_id
-WHERE marker_tag_join.marker_id = ?;
-
-insertTag:
-INSERT INTO tag(name, color) VALUES (?, ?);
-
-deleteTag:
-DELETE FROM tag WHERE id = ?;
-
--- Queries para la relación Marker-Tag
-insertMarkerTagJoin:
-INSERT INTO marker_tag_join(marker_id, tag_id) VALUES (?, ?);
-
-deleteMarkerTagJoins:
-DELETE FROM marker_tag_join WHERE marker_id = ?;
